@@ -1,3 +1,5 @@
+from .send_message import enviar_mensagem
+
 def processar_mensagem(message, phone_number_id):
     print(f"Mensagem recebida: {message}")
     print(f"ID do número de telefone: {phone_number_id}")
