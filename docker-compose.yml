@@ -1,13 +1,10 @@
 services:
-  tunnel:
-    image: localtonet/localtonet:latest
-    container_name: localtonet
-    restart: unless-stopped
+  ngrok:
+    image: ngrok/ngrok:latest
+    network_mode: host
     environment:
-      - AUTH_TOKEN=${LOCALTONET_TOKEN}
-    healthcheck:
-      test: [ "CMD-SHELL", "ps aux | grep [l]ocaltonet || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command:
+      - "http"
+      - "--url=${NGROK_URL}"
+      - "8080"
