@@ -1,35 +1,13 @@
-version: '3.8'
-
 services:
-#  app:
-#    build: ./Backend
-#    volumes:
-#      - .:/app
-#    ports:
-#      - "8000:8000"
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 3
-#    environment:
-#      - DEBUG=1
-#      - ALLOWED_HOSTS=.ngrok-free.app,localhost,127.0.0.1
-#
-  ngrok:
-    image: ngrok/ngrok:latest
-    restart: always
+  tunnel:
+    image: localtonet/localtonet:latest
+    container_name: localtonet
+    restart: unless-stopped
     environment:
-      - AUTHTOKEN=$NGROK_AUTHTOKEN
-    command:
-      - "http"
-      - "app:8000"
-
+      - AUTH_TOKEN=${LOCALTONET_TOKEN}
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:4040/api/tunnels | grep -q 'public_url' || exit 1"]
-      interval: 10s
-      timeout: 5s
+      test: [ "CMD-SHELL", "ps aux | grep [l]ocaltonet || exit 1" ]
+      interval: 30s
+      timeout: 10s
       retries: 3
-      start_period: 5s
-    ports:
-      - "4040:4040"
+      start_period: 10s

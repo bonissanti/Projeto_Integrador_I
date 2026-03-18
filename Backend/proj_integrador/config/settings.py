@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -28,8 +28,11 @@ SECRET_KEY = 'django-insecure-=m-_6zh37+-r)-_+kw*+jytt@niyhs4(1*%2u!7vbb$3j_t2co
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hereditable-unsatcheled-earnestine.ngrok-free.dev']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.localto.net',
+]
 
 # Application definition
 
@@ -119,3 +122,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+WHATSAPP_VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "148c37b2dd444ea34604e5b94c81c67fef4795c7fd2649add810bf74ec5d9e0b")
