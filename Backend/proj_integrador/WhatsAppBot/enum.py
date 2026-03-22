@@ -1,9 +1,12 @@
 from enum import Enum
 
 class Status(str, Enum):
+    INICIAL = 'inicial'
     IDLE = 'idle'
-    AGUARDANDO_CPF = 'solicitar_cpf'
+    VALIDANDO_USUARIO = 'solicitar_cpf'
+    SOLICITACAO_PARA_CRIAR_CONTA = 'criando_conta'
     AGUARDANDO_OPCAO_MENU = 'aguardando_opcao'
-    AGUARDANDO_DATA = 'aguardando_data'
-    AGUARDANDO_HORA = 'aguardando_hora'
-    AGUARDANDO_CONFIRMACAO = 'aguardando_confirmacao'
+    AGENDAMENTO = 'agendamento'
+    CANCELAMENTO = 'cancelamento'
+    CONFIRMANDO_AGENDAMENTO = 'confirmando_agendamento'
+    CONFIRMANDO_CANCELAMENTO = 'aguardando_cancelamento'

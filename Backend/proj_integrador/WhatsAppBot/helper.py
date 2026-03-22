@@ -12,12 +12,15 @@ class MensagemBOT:
     OPCAO_INVALIDA = "Opção inválida. Por favor, escolha uma das opções disponíveis."
     AGENDAMENTO_CONFIRMADO = "Agendamento confirmado! ✅"
     CANCELAMENTO_CONFIRMADO = "Agendamento cancelado! ✅"
+    CANCELAMENTO_ABORTADO = "Cancelamento abortado! ✅"
+    SAIR = "Operação cancelada, voltando ao menu principal."
     SEM_AGENDAMENTOS = "Você não possui agendamentos."
+    IDLE = "Deseja fazer algo mais?\n1 - Agendar\n2 - Cancelar agendamento\n3 - Consultar agendamentos\n4 - Sair"
 
     @staticmethod
-    def datas_disponiveis(datas: list) -> str:
+    def informarDatasDisponiveis(datas: list) -> str:
         lista = "\n".join(f"{i + 1} - {d}" for i, d in enumerate(datas))
-        return f"Estas são minhas datas disponíveis nos próximos 30 dias:\n{lista}\n\nEscolha uma opção:"
+        return f"Estas são minhas datas disponíveis nos próximos 20 dias:\n{lista}\n\nEscolha uma opção:"
 
     @staticmethod
     def confirmar_agendamento(data, horario) -> str:
@@ -30,10 +33,18 @@ class MensagemBOT:
         lista = "\n".join(f"{i+1} - {a['data']} às {a['horario']}" for i, a in enumerate(agendamentos))
         return f"Seus agendamentos:\n{lista}"
 
+    def selecionar_agendamento(agendamentos: list) -> str:
+        if not agendamentos:
+            return MensagemBOT.SEM_AGENDAMENTOS
+        lista = "\n".join(f"{i+1} - {a['data']} às {a['horario']}" for i, a in enumerate(agendamentos))
+        return f"Qual agendamento deseja cancelar?\n{lista}"
+
     @staticmethod
     def confirmar_cancelamento(agendamento) -> str:
         return f"Cancelar este agendamento?\n📅 {agendamento['data']} às {agendamento['horario']}\n\n1 - Sim\n2 - Não"
 
+    def criar_conta_com_cpf_informado_previamente(cpf: str) -> str:
+        return f"Deseja criar uma conta com o CPF {cpf}, informado anteriormente?"
 
 @dataclass
 class Conversation:
