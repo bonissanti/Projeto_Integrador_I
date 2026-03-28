@@ -15,4 +15,3 @@ class Status(str, Enum):
 class LocalAtendimento(str, Enum):
     A_DOMICILIO = "A Domicílio"
     SALAO = "No Salão"
-    INDEFINIDO = "A combinar"

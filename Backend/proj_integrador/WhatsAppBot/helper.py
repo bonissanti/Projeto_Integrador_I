@@ -19,7 +19,10 @@ class MensagemBOT:
 
     @staticmethod
     def informarDatasDisponiveis(datas: list) -> str:
-        lista = "\n".join(f"{i + 1} - {d}" for i, d in enumerate(datas))
+        lista = "\n".join(
+            f"{i + 1} - {d['data']} às {d['horario']} | {d['local'].value}"
+            for i, d in enumerate(datas)
+        )
         return f"Estas são minhas datas disponíveis nos próximos 20 dias:\n{lista}\n\nEscolha uma opção:"
 
     @staticmethod

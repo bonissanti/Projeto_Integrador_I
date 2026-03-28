@@ -14,7 +14,7 @@ def processar_mensagem(mensagemDoUsuario: str, bot_telefone: str, usuario_telefo
         conv.data = {
             "usuario": UsuarioContextoDTO(wa_id=usuario_telefone),
             "agendamento": AgendamentoDTO(usuario_wa_id=usuario_telefone),
-            "LocalAtendimento": LocalAtendimento.INDEFINIDO
+            "LocalAtendimento": LocalAtendimento.SALAO
         }
 
     agendamentos = buscarAgendamentosDisponiveisNoPeriodoMock(20)
@@ -75,24 +75,20 @@ def gerenciar_validacao_usuario(usuario_telefone: str, bot_telefone: str, mensag
 
     else:
         enviar_mensagem(usuario_telefone, MensagemBOT.CPF_NAO_CADASTRADO, bot_telefone)
-        conv.data['usuario'].cpf = cpfValido
+        conv.data['usuario'].cpf = mensagemDoUsuario
         set_state(usuario_telefone, Status.SOLICITACAO_PARA_CRIAR_CONTA)
 
 
 def gerenciar_solicitacao_para_criar_conta(usuario_telefone: str, bot_telefone: str, mensagemDoUsuario: str) -> None:
-    mensagem = mensagemDoUsuario.strip()
-
-    if not mensagem.isdigit():
+    if not mensagemDoUsuario.isdigit():
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
         return
 
-    conv = get_conversation(usuario_telefone)
-
-    if mensagem == "1":
+    if mensagemDoUsuario == "1":
         enviar_mensagem(usuario_telefone, MensagemBOT.MENU_PRINCIPAL, bot_telefone)
         set_state(usuario_telefone, Status.AGUARDANDO_OPCAO_MENU)
 
-    elif mensagem == "2":
+    elif mensagemDoUsuario == "2":
         enviar_mensagem(usuario_telefone, MensagemBOT.SAIR, bot_telefone)
         set_state(usuario_telefone, Status.INICIAL)
 
@@ -101,8 +97,6 @@ def gerenciar_solicitacao_para_criar_conta(usuario_telefone: str, bot_telefone: 
 
 
 def gerenciar_menu_principal(usuario_telefone: str, bot_telefone: str, mensagemDoUsuario: str, agendamentos: List[int]) -> None:
-    enviar_mensagem(usuario_telefone, MensagemBOT.MENU_PRINCIPAL, bot_telefone)
-
     if not mensagemDoUsuario.isdigit():
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
         return
@@ -161,7 +155,7 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagemDoU
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
         return
 
-    data = agendamentos[indice]
+    data = agendamentos[indice - 1]
 
     conv = get_conversation(usuario_telefone)
     conv.data["agendamento"].data = data
@@ -274,13 +268,3 @@ def get_conversation(phone: str) -> Conversation:
 def set_state(phone: str, new_state: Status):
     conv = get_conversation(phone)
     conv.state = new_state
-
-
-#
-# if usuario_telefone not in conversations:
-#     conversations[usuario_telefone] = Conversation(  # Instanciando a classe aqui
-#         state=Status.INICIAL,
-#         usuario=UsuarioContextoDTO(wa_id=usuario_telefone),
-#         agendamento=AgendamentoDTO(usuario_wa_id=usuario_telefone),
-#         LocalAtendimento=LocalAtendimento.INDEFINIDO
-#     )

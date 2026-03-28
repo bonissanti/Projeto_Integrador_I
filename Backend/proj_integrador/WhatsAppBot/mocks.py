@@ -37,7 +37,7 @@ def buscarAgendamentosPorCPFMock(cpf: str) -> List[datetime]:
             agendamento = {
                 "data": data_atual.strftime("%d/%m/%Y"),
                 "horario": "10:00",
-                "local": random.choice(list(LocalAtendimento)),
+                "local": random.choice([LocalAtendimento.A_DOMICILIO, LocalAtendimento.SALAO]),
             }
             agendamentoDoUsuario.append(agendamento)
     return agendamentoDoUsuario
