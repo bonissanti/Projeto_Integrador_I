@@ -1,6 +1,7 @@
 from enum import Enum
 
 class Status(str, Enum):
+    LOCAL_ATENDIMENTO = "local_atendimento"
     SAIR = "Sair"
     INICIAL = "inicial"
     IDLE = "idle"
