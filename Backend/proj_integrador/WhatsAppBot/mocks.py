@@ -5,7 +5,7 @@ from typing import List
 from Backend.proj_integrador.WhatsAppBot.enum import LocalAtendimento
 
 
-def buscarAgendamentosDisponiveisNoPeriodoMock(total_dias: int)-> List[datetime]:
+def buscarAgendamentosDisponiveisNoPeriodoMock(total_dias: int)-> List[dict]:
     disponiveis = []
     hoje = datetime.date.today()
 
@@ -22,15 +22,15 @@ def buscarAgendamentosDisponiveisNoPeriodoMock(total_dias: int)-> List[datetime]
     return disponiveis
 
 
-def checarSeUsuarioExistePorCPFMock(cpfUsuario: str):
+def checarSeUsuarioExistePorTelefoneMock(numero_telefone: str):
     return random.choice([True, False])
 
-def buscarAgendamentosPorCPFMock(cpf: str) -> List[datetime]:
-    agendamentoDoUsuario = []
+def buscarAgendamentosPorTelefoneMock(numero_telefone: str) -> List[dict]:
+    agendamento_do_usuario = []
     hoje = datetime.date.today()
-    agendamentosMarcados = random.randint(1, 3)
+    agendamentos_marcados = random.randint(1, 3)
 
-    for i in range(agendamentosMarcados):
+    for i in range(agendamentos_marcados):
         data_atual = hoje + datetime.timedelta(days=i)
 
         if random.choice([True, False]):
@@ -39,5 +39,5 @@ def buscarAgendamentosPorCPFMock(cpf: str) -> List[datetime]:
                 "horario": "10:00",
                 "local": random.choice([LocalAtendimento.A_DOMICILIO, LocalAtendimento.SALAO]),
             }
-            agendamentoDoUsuario.append(agendamento)
-    return agendamentoDoUsuario
+            agendamento_do_usuario.append(agendamento)
+    return agendamento_do_usuario

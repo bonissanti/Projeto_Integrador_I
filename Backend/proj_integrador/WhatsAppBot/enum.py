@@ -1,13 +1,14 @@
 from enum import Enum
 
 class Status(str, Enum):
-    LOCAL_ATENDIMENTO = "local_atendimento"
     SAIR = "Sair"
     INICIAL = "inicial"
     IDLE = "idle"
-    VALIDANDO_USUARIO = "solicitar_cpf"
+    VALIDANDO_USUARIO = "validando_usuario"
     SOLICITACAO_PARA_CRIAR_CONTA = "criando_conta"
     AGUARDANDO_OPCAO_MENU = "aguardando_opcao"
+    LOCAL_ATENDIMENTO = "local_atendimento"
+    AGUARDANDO_ENDERECO = "aguardando_endereco"
     DEFININDO_DATA = "agendamento"
     CANCELAMENTO = "cancelamento"
     CONFIRMANDO_AGENDAMENTO = "confirmando_agendamento"
