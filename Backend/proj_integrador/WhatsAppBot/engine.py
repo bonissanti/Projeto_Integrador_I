@@ -19,6 +19,7 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
             "LocalAtendimento": LocalAtendimento.SALAO
         }
 
+    #TODO: substituir mocks por metodos com acesso ao banco
     agendamentos = buscarAgendamentosDisponiveisNoPeriodoMock(20)
 
     match conv.state:
