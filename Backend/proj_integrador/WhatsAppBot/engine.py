@@ -220,8 +220,6 @@ def gerenciar_confirmacao_agendamento(usuario_telefone: str, bot_telefone: str, 
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
         return
 
-    conv = get_conversation(usuario_telefone)
-
     if mensagem == "1":
         enviar_mensagem(usuario_telefone, MensagemBOT.AGENDAMENTO_CONFIRMADO, bot_telefone)
         set_state(usuario_telefone, Status.IDLE)
