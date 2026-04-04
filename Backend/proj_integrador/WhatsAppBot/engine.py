@@ -165,8 +165,7 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do
     agendamento_escolhido = agendamentos[indice - 1]
 
     conv = get_conversation(usuario_telefone)
-    conv.data["agendamento"].data = agendamento_escolhido["data"]
-    conv.data["agendamento"].horario = agendamento_escolhido["horario"]
+    conv.data["agendamento"].data_hora = agendamento_escolhido
 
     enviar_mensagem(usuario_telefone, MensagemBOT.LOCAL_ATENDIMENTO, bot_telefone)
     set_state(usuario_telefone, Status.LOCAL_ATENDIMENTO)
@@ -181,7 +180,7 @@ def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensag
 
     conv = get_conversation(usuario_telefone)
 
-    if mensagem == "1": #TODO: pedir endereço quando for a domicilio e informar endereço do salão, se for outra opção
+    if mensagem == "1":
         conv.data["local_atendimento"] = LocalAtendimento.A_DOMICILIO
         enviar_mensagem(usuario_telefone, MensagemBOT.INFORMAR_ENDERECO, bot_telefone)
         set_state(usuario_telefone, Status.AGUARDANDO_ENDERECO)
@@ -189,7 +188,7 @@ def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensag
     elif mensagem == "2":
         conv.data["local_atendimento"] = LocalAtendimento.SALAO
         conv.data["endereco"] = endereco_padrao
-        agendamento = conv.data["agendamento"].data_agendamento
+        agendamento = conv.data["agendamento"].data_hora
 
         msg = MensagemBOT.confirmar_agendamento(nome_usuario, agendamento, endereco_padrao)
         enviar_mensagem(usuario_telefone, msg, bot_telefone)
@@ -207,7 +206,7 @@ def gerenciar_endereco(usuario_telefone: str, bot_telefone: str, mensagem_do_usu
 
     conv = get_conversation(usuario_telefone)
     conv.data["endereco"] = endereco
-    agendamento = conv.data["agendamento"].data_agendamento
+    agendamento = conv.data["agendamento"].data_hora
 
     msg = MensagemBOT.confirmar_agendamento(nome_usuario, agendamento, endereco)
     enviar_mensagem(usuario_telefone, msg, bot_telefone)

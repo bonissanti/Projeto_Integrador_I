@@ -10,7 +10,6 @@ class UsuarioContextoDTO:
 @dataclass
 class AgendamentoDTO:
     usuario_wa_id: str
-    data: Optional[str] = None
-    horario: Optional[str] = None
+    data_hora: Optional[dict] = None
 
 
