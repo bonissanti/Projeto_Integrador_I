@@ -17,7 +17,7 @@ endif
 
 help:
 	@echo ""
-	@echo "📚 Projeto Integrador I - Comandos Disponíveis"
+	@echo "Projeto Integrador I - Comandos Disponiveis"
 	@echo "=============================================="
 	@echo ""
 	@echo "INICIAR (escolha um):"
@@ -39,25 +39,26 @@ help:
 	@echo ""
 
 venv:
-	@echo "🔧 Criando Python isolado em '$(VENV)'..."
-	@if [ -d "$(VENV)" ]; then echo "✓ Pasta '$(VENV)' já existe"; else python -m venv $(VENV) && echo "✓ '$(VENV)' criado com sucesso"; fi
-	@echo "📦 Instalando uv (gerenciador de pacotes moderno)..."
-	@$(PY) -m pip install --upgrade uv > /dev/null 2>&1 && echo "✓ uv instalado"
+	@echo "Preparando Python isolado em '$(VENV)'..."
+	@python -m venv $(VENV)
+	@echo "Instalando uv (gerenciador de pacotes moderno)..."
+	@$(PY) -m pip install --upgrade uv
 
 install: venv
 	@echo ""
-	@if [ -f requirements.txt ]; then echo "📥 Instalando dependências com uv..."; $(UV_CMD) pip install -r requirements.txt && echo "✓ Dependências instaladas"; else echo "⚠️  requirements.txt não encontrado, pulando instalação"; fi
+	@echo "Instalando dependencias com uv..."
+	@$(UV_CMD) pip install -r requirements.txt || echo "AVISO: requirements.txt nao encontrado ou vazio, pulando instalacao"
 
 setup: install
 	@echo ""
-	@echo "✅ Configuração concluída!"
+	@echo "Configuracao concluida!"
 	@echo ""
-	@echo "🔌 Para ativar o ambiente, execute:"
+	@echo "Para ativar o ambiente, execute:"
 	@echo "   make activate"
 	@echo ""
 
 activate:
-	@echo "🔌 Ativando o ambiente virtual em uma nova sessão do terminal..."
+	@echo "Ativando o ambiente virtual em uma nova sessao do terminal..."
 ifeq ($(OS),Windows_NT)
 	@cmd /k "$(VENV)\\Scripts\\activate.bat"
 else
@@ -65,17 +66,17 @@ else
 endif
 
 migrate:
-	@echo "📊 Preparando banco de dados..."
+	@echo "Preparando banco de dados..."
 	@$(PY) Backend/proj_integrador/manage.py migrate
-	@echo "✓ Banco pronto!"
+	@echo "Banco pronto!"
 
 makemigrations:
-	@echo "📝 Criando migrations..."
+	@echo "Criando migrations..."
 	@$(PY) Backend/proj_integrador/manage.py makemigrations
 
 runserver:
 	@echo ""
-	@echo "🚀 Iniciando servidor Django..."
+	@echo "Iniciando servidor Django..."
 	@echo "   Acesse: http://localhost:8000"
 	@echo "   Para parar: pressione Ctrl+C"
 	@echo ""
@@ -83,26 +84,26 @@ runserver:
 
 createsuperuser:
 	@echo ""
-	@echo "👤 Criando conta de administrador..."
-	@echo "   Você será solicitado a digitar nome de usuário, email e senha."
+	@echo "Criando conta de administrador..."
+	@echo "   Voce sera solicitado a digitar nome de usuario, email e senha."
 	@echo ""
 	@$(PY) Backend/proj_integrador/manage.py createsuperuser
 	@echo ""
-	@echo "✓ Conta criada! Acesse em: http://localhost:8000/admin"
+	@echo "Conta criada! Acesse em: http://localhost:8000/admin"
 	@echo ""
 
 update-requirements:
-	@echo "📤 Atualizando requirements.txt com uv..."
+	@echo "Atualizando requirements.txt com uv..."
 	@$(UV_CMD) pip freeze > requirements.txt
-	@echo "✓ requirements.txt atualizado"
+	@echo "requirements.txt atualizado"
 
 clean:
-	@echo "🧹 Limpando..."
+	@echo "Limpando..."
 	@echo "   Removendo Python isolado 'uv'..."
 	@$(RM) $(VENV) || true
 	@echo "   Removendo arquivos de cache Python..."
 	@python -c "import os, shutil; [shutil.rmtree(os.path.join(r, d), ignore_errors=True) for r, dirs, f in os.walk('.') for d in dirs if d == '__pycache__']" || true
-	@echo "✓ Limpeza concluída"
+	@echo "Limpeza concluida"
 	@echo ""
-	@echo "💡 Para recomeçar, execute: make setup"
+	@echo "Para recomecar, execute: make setup"
 	@echo ""
