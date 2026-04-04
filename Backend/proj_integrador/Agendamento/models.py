@@ -17,6 +17,7 @@ class Service(models.Model):
 
     def __str__(self):
         return self.name
+    
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('scheduled', 'Agendado'),
@@ -29,6 +30,29 @@ class Appointment(models.Model):
     time = models.TimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     google_event_id = models.CharField(max_length=255, blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.customer.name} - {self.date} às {self.time}"
+
+    def save(self, *args, **kwargs):
+        # Primeiro, verificamos se o agendamento já existe no banco e se já tem ID do Google
+        ja_tem_id_google = bool(self.google_event_id)
+        
+        # Salvamos no SQLite primeiro (garantia de que o dado não se perde)
+        super().save(*args, **kwargs) 
+
+        # Se estiver confirmado e AINDA NÃO foi enviado para o Google...
+        if self.status == 'confirmado' and not ja_tem_id_google:
+            # Importamos a função que acabamos de criar
+            from .calendar_utils import criar_evento_google_calendar
+            
+            # Executamos a integração
+            id_gerado = criar_evento_google_calendar(self)
+            
+            if id_gerado:
+                self.google_event_id = id_gerado
+                # Salvamos de novo, mas agora apenas atualizando a coluna do ID do Google
+                super().save(update_fields=['google_event_id'])
 
 class AppointmentxService(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)

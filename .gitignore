@@ -40,3 +40,4 @@ Thumbs.db
 .env
 .env.local
 
+calendar_credentials.json
