@@ -23,7 +23,7 @@ load_dotenv(BASE_DIR.parent.parent / '.env')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=m-_6zh37+-r)-_+kw*+jytt@niyhs4(1*%2u!7vbb$3j_t2co'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -124,4 +124,4 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-WHATSAPP_VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "148c37b2dd444ea34604e5b94c81c67fef4795c7fd2649add810bf74ec5d9e0b")
+WHATSAPP_VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")

@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .engine import processar_mensagem
 
 
-def healthcheck(request):
+def healthcheck():
     return JsonResponse({"status": "OK"})
 
 @csrf_exempt
