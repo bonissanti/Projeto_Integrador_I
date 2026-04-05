@@ -2,7 +2,7 @@ import datetime
 import random
 from typing import List
 
-from Backend.proj_integrador.WhatsAppBot.enum import LocalAtendimento
+from .enum import LocalAtendimento
 
 
 def buscarAgendamentosDisponiveisNoPeriodoMock(total_dias: int)-> List[dict]:

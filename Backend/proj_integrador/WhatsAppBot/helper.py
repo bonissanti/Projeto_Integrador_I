@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from xmlrpc.client import DateTime
 
-from Backend.proj_integrador.WhatsAppBot.enum import Status
+from .enum import Status
 
 class MensagemBOT:
     BOAS_VINDAS = "Olá, obrigada pelo seu contato. Por favor, para prosseguirmos, informe seu nome e sobrenome! 🙂"
