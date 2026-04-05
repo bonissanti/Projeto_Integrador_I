@@ -7,10 +7,15 @@ from Backend.proj_integrador.WhatsAppBot.enum import LocalAtendimento
 
 def buscarAgendamentosDisponiveisNoPeriodoMock(total_dias: int)-> List[dict]:
     disponiveis = []
-    hoje = datetime.date.today()
+    hoje = datetime.datetime.now()
+
+    if hoje.hour >= 10:
+        data_base = hoje + datetime.timedelta(days=1)
+    else:
+        data_base = hoje
 
     for i in range(total_dias):
-        data_atual = hoje + datetime.timedelta(days=i)
+        data_atual = data_base + datetime.timedelta(days=i)
 
         if random.choice([True, False]):
             agendamento = {

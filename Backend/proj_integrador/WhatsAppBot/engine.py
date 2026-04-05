@@ -9,18 +9,19 @@ from .send_message import enviar_mensagem
 
 def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_telefone: str, nome_usuario: str):
     conv = get_conversation(usuario_telefone)
+
+    #TODO: substituir mocks por metodos com acesso ao banco
     endereco_padrao: str = "Rua Nelson Tigrão, 15, Vila Missionária, CEP: 04430-165"
 
     if conv.state == Status.IDLE and not conv.data:
+        agendamentos = buscarAgendamentosDisponiveisNoPeriodoMock(20)
         conv.state = Status.INICIAL
         conv.data = {
             "usuario": UsuarioContextoDTO(wa_id=usuario_telefone, nome=nome_usuario),
-            "agendamento": AgendamentoDTO(usuario_wa_id=usuario_telefone),
+            "agendamento": AgendamentoDTO(usuario_wa_id=usuario_telefone, datas_disponiveis=agendamentos),
             "LocalAtendimento": LocalAtendimento.SALAO
         }
 
-    #TODO: substituir mocks por metodos com acesso ao banco
-    agendamentos = buscarAgendamentosDisponiveisNoPeriodoMock(20)
 
     match conv.state:
         case Status.INICIAL:
@@ -32,6 +33,8 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
         case Status.SOLICITACAO_PARA_CRIAR_CONTA:
             gerenciar_solicitacao_para_criar_conta(usuario_telefone, bot_telefone, mensagem_do_usuario)
 
+        #TODO: trocar paramentro agendamentos por conv.data["agendamentos"].datas_disponiveis
+
         case Status.AGUARDANDO_OPCAO_MENU:
             gerenciar_menu_principal(usuario_telefone, bot_telefone, mensagem_do_usuario, agendamentos)
 
@@ -39,10 +42,10 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
             gerenciar_escolha_data(usuario_telefone, bot_telefone, mensagem_do_usuario, agendamentos)
 
         case Status.LOCAL_ATENDIMENTO:
-            gerenciar_local_atendimento(usuario_telefone, bot_telefone, mensagem_do_usuario, nome_usuario, endereco_padrao)
+            gerenciar_local_atendimento(usuario_telefone, bot_telefone, mensagem_do_usuario, endereco_padrao)
 
         case Status.AGUARDANDO_ENDERECO:
-            gerenciar_endereco(usuario_telefone, bot_telefone, mensagem_do_usuario, nome_usuario)
+            gerenciar_endereco(usuario_telefone, bot_telefone, mensagem_do_usuario)
 
         case Status.CONFIRMANDO_AGENDAMENTO:
             gerenciar_confirmacao_agendamento(usuario_telefone, bot_telefone, mensagem_do_usuario)
@@ -104,12 +107,15 @@ def gerenciar_solicitacao_para_criar_conta(usuario_telefone: str, bot_telefone: 
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
 
 
-def gerenciar_menu_principal(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str, agendamentos: List[dict]) -> None:
+def gerenciar_menu_principal(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
     if not mensagem_do_usuario.isdigit():
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
         return
 
+    conv = get_conversation(usuario_telefone)
+
     if mensagem_do_usuario == "1": # Agendar
+        agendamentos = conv.data["agendamento"].datas_disponiveis
         datas_disponiveis = MensagemBOT.informarDatasDisponiveis(agendamentos)
         enviar_mensagem(usuario_telefone, datas_disponiveis, bot_telefone)
         set_state(usuario_telefone, Status.DEFININDO_DATA)
@@ -124,7 +130,6 @@ def gerenciar_menu_principal(usuario_telefone: str, bot_telefone: str, mensagem_
         msg = MensagemBOT.selecionar_agendamento(agendamentos_do_usuario)
         enviar_mensagem(usuario_telefone, msg, bot_telefone)
 
-        conv = get_conversation(usuario_telefone)
         conv.data["agendamentos"] = agendamentos_do_usuario
 
         set_state(usuario_telefone, Status.CANCELAMENTO)
@@ -155,11 +160,7 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do
 
     indice = int(mensagem)
 
-    if indice < 1 or indice > 20:
-        enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
-        return
-
-    if indice < 0 or indice >= len(agendamentos):
+    if indice < 0 or indice > len(agendamentos):
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
         return
 
@@ -172,7 +173,7 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do
     set_state(usuario_telefone, Status.LOCAL_ATENDIMENTO)
 
 
-def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str, nome_usuario: str, endereco_padrao: str) -> None:
+def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str, endereco_padrao: str) -> None:
     mensagem = mensagem_do_usuario.strip()
 
     if not mensagem_do_usuario.isdigit():
@@ -190,6 +191,7 @@ def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensag
         conv.data["local_atendimento"] = LocalAtendimento.SALAO
         conv.data["endereco"] = endereco_padrao
         agendamento = conv.data["agendamento"].data_hora
+        nome_usuario = conv.data["usuario"].nome
 
         msg = MensagemBOT.confirmar_agendamento(nome_usuario, agendamento, endereco_padrao)
         enviar_mensagem(usuario_telefone, msg, bot_telefone)
@@ -198,7 +200,7 @@ def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensag
     else:
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
 
-def gerenciar_endereco(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str, nome_usuario: str) -> None:
+def gerenciar_endereco(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
     endereco = mensagem_do_usuario.strip()
 
     if not endereco:
@@ -208,6 +210,7 @@ def gerenciar_endereco(usuario_telefone: str, bot_telefone: str, mensagem_do_usu
     conv = get_conversation(usuario_telefone)
     conv.data["endereco"] = endereco
     agendamento = conv.data["agendamento"].data_hora
+    nome_usuario = conv.data["usuario"].nome
 
     msg = MensagemBOT.confirmar_agendamento(nome_usuario, agendamento, endereco)
     enviar_mensagem(usuario_telefone, msg, bot_telefone)
