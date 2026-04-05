@@ -33,13 +33,11 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
         case Status.SOLICITACAO_PARA_CRIAR_CONTA:
             gerenciar_solicitacao_para_criar_conta(usuario_telefone, bot_telefone, mensagem_do_usuario)
 
-        #TODO: trocar paramentro agendamentos por conv.data["agendamentos"].datas_disponiveis
-
         case Status.AGUARDANDO_OPCAO_MENU:
-            gerenciar_menu_principal(usuario_telefone, bot_telefone, mensagem_do_usuario, agendamentos)
+            gerenciar_menu_principal(usuario_telefone, bot_telefone, mensagem_do_usuario)
 
         case Status.DEFININDO_DATA:
-            gerenciar_escolha_data(usuario_telefone, bot_telefone, mensagem_do_usuario, agendamentos)
+            gerenciar_escolha_data(usuario_telefone, bot_telefone, mensagem_do_usuario)
 
         case Status.LOCAL_ATENDIMENTO:
             gerenciar_local_atendimento(usuario_telefone, bot_telefone, mensagem_do_usuario, endereco_padrao)
@@ -151,8 +149,10 @@ def gerenciar_menu_principal(usuario_telefone: str, bot_telefone: str, mensagem_
 
 
 #
-def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str, agendamentos: List[dict]) -> None:
+def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
     mensagem = mensagem_do_usuario.strip()
+    conv = get_conversation(usuario_telefone)
+    agendamentos = conv.data["agendamento"].datas_disponiveis
 
     if not mensagem.isdigit():
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
