@@ -1,6 +1,3 @@
-from datetime import datetime
-from typing import List
-
 from .bot.dtos import UsuarioContextoDTO, AgendamentoDTO
 from .helper import MensagemBOT, Conversation, conversations
 from .enum import Status, LocalAtendimento
