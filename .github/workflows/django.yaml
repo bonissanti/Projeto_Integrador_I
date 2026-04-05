@@ -36,4 +36,5 @@ jobs:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         VERIFY_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
+        cd Backend
         python Backend/proj_integrador/manage.py test Backend/proj_integrador
