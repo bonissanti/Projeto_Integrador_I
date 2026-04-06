@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
 from xmlrpc.client import DateTime
 
+from Agendamento.models import Appointment
 from .enum import Status
 
 class MensagemBOT:
-    BOAS_VINDAS = "Olá, obrigada pelo seu contato. Por favor, para prosseguirmos, informe seu nome e sobrenome! 🙂"
+    DATA_EM_USO = "Opa, esta data já está ocupada, por favor, informe uma outra opção."
+    BOAS_VINDAS = "Olá, obrigada pelo seu contato. Por favor, para prosseguirmos, informe seu nome e sobrenome 🙂"
     INFORMAR_ENDERECO = "Por favor, informe seu endereço com Rua, Número, complemento (se houver), CEP e bairro:"
     NUMERO_NAO_CADASTRADO = "Você não possui cadastro. Gostaria de criar uma conta?\nDigite um dos valores abaixo:\n\n1 - Sim\n2 - Não"
     SOLICITAR_DADOS_CADASTRO = "Por favor, informe:\n- Nome completo\n- Telefone"
@@ -32,17 +34,17 @@ class MensagemBOT:
         return f"Ok, {nome}, posso confirmar o agendamento para:\n\n📅 {agendamento['data']} às {agendamento['horario']}\n🏠 Local: {endereco}\n\n1 - Sim\n2 - Não"
 
     @staticmethod
-    def listar_agendamentos(agendamentos: list[dict]) -> str:
+    def listar_agendamentos(agendamentos: list[Appointment]) -> str:
         if not agendamentos:
             return MensagemBOT.SEM_AGENDAMENTOS
-        lista = "\n".join(f"{i+1} - {a['data']} às {a['horario']}" for i, a in enumerate(agendamentos))
+        lista = "\n".join(f"{i+1} - {a.date} às {a.time}" for i, a in enumerate(agendamentos))
         return f"Seus agendamentos:\n{lista}"
 
     @staticmethod
-    def selecionar_agendamento(agendamentos: list[dict]) -> str:
+    def selecionar_agendamento(agendamentos: list[Appointment]) -> str:
         if not agendamentos:
             return MensagemBOT.SEM_AGENDAMENTOS
-        lista = "\n".join(f"{i+1} - {a['data']} às {a['horario']}" for i, a in enumerate(agendamentos))
+        lista = "\n".join(f"{i+1} - {a.date} às {a.time}" for i, a in enumerate(agendamentos))
         return f"Qual agendamento deseja cancelar?\n{lista}"
 
     @staticmethod
