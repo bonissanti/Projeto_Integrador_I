@@ -1,9 +1,6 @@
-import datetime
-from datetime import datetime
+from .managers import AppointmentsManager, CustomerManager
 
 from django.db import models
-from django.db.models import QuerySet
-
 
 # Create your models here.
 class Customer(models.Model):
@@ -12,7 +9,7 @@ class Customer(models.Model):
     phone = models.CharField(max_length=20)
     deleted = models.BooleanField(default=False)
 
-    objects = models.Manager()
+    objects = CustomerManager()
     active_objects = models.Manager()
 
     def __str__(self):
@@ -41,7 +38,8 @@ class Appointment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     google_event_id = models.CharField(max_length=255, blank=True, null=True)
 
-    objects = models.Manager()
+    objects = AppointmentsManager()
+
     def __str__(self):
         return f"{self.customer.name} - {self.date} às {self.time}"
 

@@ -2,16 +2,17 @@ from dataclasses import dataclass, field
 from xmlrpc.client import DateTime
 
 from Agendamento.models import Appointment
-from .enum import Status
+from .bot_enums import Status
 
 class MensagemBOT:
     DATA_EM_USO = "Opa, esta data já está ocupada, por favor, informe uma outra opção."
     BOAS_VINDAS = "Olá, obrigada pelo seu contato. Por favor, para prosseguirmos, informe seu nome e sobrenome 🙂"
     INFORMAR_ENDERECO = "Por favor, informe seu endereço com Rua, Número, complemento (se houver), CEP e bairro:"
     NUMERO_NAO_CADASTRADO = "Você não possui cadastro. Gostaria de criar uma conta?\nDigite um dos valores abaixo:\n\n1 - Sim\n2 - Não"
-    SOLICITAR_DADOS_CADASTRO = "Por favor, informe:\n- Nome completo\n- Telefone"
+    SOLICITAR_DADOS_CADASTRO = "Por favor, informe o seu email\n"
     MENU_PRINCIPAL = "O que deseja fazer?\nDigite um dos valores abaixo:\n\n1 - Agendar\n2 - Cancelar agendamento\n3 - Consultar agendamentos\n4 - Sair"
     OPCAO_INVALIDA = "Opção inválida. Por favor, escolha uma das opções disponíveis."
+    EMAIL_INVALIDO = "Opa, parece que o email informado não é válido, revise e tente novamente!"
     NOME_NAO_INFORMADO = "Opa! Esse nome me parece incorreto, por favor, informe seu nome novamente."
     LOCAL_ATENDIMENTO = "Em qual local deseja ser atendido(a)?\nDigite um dos valores abaixo:\n\n1 - Em sua residência (preço: R$YYY)\n2 - Em meu salão (preço: R$XXX)"
     AGENDAMENTO_CONFIRMADO = "Agendamento confirmado! ✅\n"

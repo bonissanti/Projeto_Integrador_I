@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from django.test import TestCase
 
 from .engine import processar_mensagem, get_conversation
-from .enum import Status
+from .bot_enums import Status
 from .helper import conversations, MensagemBOT
 
 
