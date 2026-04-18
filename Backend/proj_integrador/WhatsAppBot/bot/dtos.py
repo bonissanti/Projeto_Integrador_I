@@ -5,6 +5,7 @@ from typing import Optional
 class UsuarioContextoDTO:
     wa_id: str
     nome: Optional[str] = None
+    email: Optional[str] = None
 
 
 @dataclass
