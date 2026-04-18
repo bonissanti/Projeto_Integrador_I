@@ -18,7 +18,7 @@ class MensagemBOT:
     AGENDAMENTO_CONFIRMADO = "Agendamento confirmado! ✅\n"
     CANCELAMENTO_CONFIRMADO = "Agendamento cancelado! ❌"
     CANCELAMENTO_ABORTADO = "Cancelamento abortado! ✅"
-    SAIR = "OK! Operação cancelada! Caso deseje iniciar uma nova conversa posteriormente, digite 'Oi' para reiniciarmos 😉"
+    SAIR = "OK! Atendimento finalizado! Caso deseje iniciar uma nova conversa posteriormente, digite 'Oi' para reiniciarmos 😉"
     SEM_AGENDAMENTOS = "Você não possui agendamentos."
     IDLE = "Deseja fazer algo mais?\n1 - Agendar\n2 - Cancelar agendamento\n3 - Consultar agendamentos\n4 - Sair"
 
@@ -56,6 +56,9 @@ class MensagemBOT:
     @staticmethod
     def criar_conta_com_cpf_informado_previamente(cpf: str) -> str:
         return f"Deseja criar uma conta com o CPF {cpf}, informado anteriormente?"
+
+    def bem_vindo_customizado(nome: str) -> str:
+        return f"Olá, bem-vindo(a) de volta, {nome}! 🫶"
 
 @dataclass
 class Conversation:

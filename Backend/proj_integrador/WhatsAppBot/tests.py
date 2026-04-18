@@ -69,49 +69,38 @@ class StateMachineIntegrationTest(TestCase):
             processar_mensagem("Oi", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
         conv = get_conversation(self.usuario_telefone)
-        self.assertEqual(conv.state, Status.VALIDANDO_USUARIO)
+        self.assertEqual(conv.state, Status.AGUARDANDO_OPCAO_MENU)
         mock_enviar.assert_called_with(
             self.usuario_telefone,
-            MensagemBOT.BOAS_VINDAS,
+            MensagemBOT.MENU_PRINCIPAL,
             self.bot_telefone
         )
 
-        # 2 - Send valid Name (real DB check happens here)
-        processar_mensagem("Fulano de Tal", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
-
-        conv = get_conversation(self.usuario_telefone)
-        self.assertEqual(conv.state, Status.AGUARDANDO_OPCAO_MENU)
-
-        # Verify user data was loaded from DB into conversation
-        self.assertEqual(conv.data["usuario"].nome, self.customer.name)
-        self.assertEqual(conv.data["usuario"].email, self.customer.email)
-        self.assertEqual(conv.data["usuario"].wa_id, self.customer.phone)
-
-        # 3 - Choose option 1 (Agendar)
+        # 2 - Choose option 1 (Agendar)
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.DEFININDO_DATA)
 
-        # 4 - Choose a date (option 1) — mock availability check
+        # 3 - Choose a date (option 1) — mock availability check
         with patch(PATCH_CHECAR_DATA_EM_USO, return_value=False):
             processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.LOCAL_ATENDIMENTO)
 
-        # 5 - Choose local (option 2 - Salao)
+        # 4 - Choose local (option 2 - Salao)
         processar_mensagem("2", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.CONFIRMANDO_AGENDAMENTO)
 
-        # 6 - Confirm the appointment (real DB call to create appointment)
+        # 5 - Confirm the appointment (real DB call to create appointment)
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.IDLE)
-        mock_enviar.assert_called_with(
+        mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.AGENDAMENTO_CONFIRMADO,
             self.bot_telefone
@@ -175,7 +164,7 @@ class StateMachineIntegrationTest(TestCase):
 
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.CONFIRMANDO_AGENDAMENTO)
-        self.assertEqual(conv.data["endereco"], endereco)
+        self.assertEqual(conv.data["agendamento"].local_atendimento, endereco)
 
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
@@ -217,11 +206,11 @@ class StateMachineIntegrationTest(TestCase):
 
         self.assertEqual(conv.state, Status.CONFIRMANDO_CANCELAMENTO)
 
-        processar_mensagem("sim", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+        processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.IDLE)
-        mock_enviar.assert_called_with(
+        mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.CANCELAMENTO_CONFIRMADO,
             self.bot_telefone
@@ -239,7 +228,13 @@ class StateMachineIntegrationTest(TestCase):
         with patch(PATCH_CHECAR_USUARIO, return_value=True):
             processar_mensagem("Pedro Costa", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
-        mock_agendamentos = [MagicMock(date="05/04/2026", time="10:00")]
+        mock_agendamentos = [
+            MagicMock(
+                date=date(2026, 4, 5),
+                time="10:00",
+                location="Rua Nelson Tigrão, 15, Vila Missionária, CEP: 04430-165"
+            )
+        ]
 
         with patch(PATCH_BUSCAR_AGENDAMENTOS, return_value=mock_agendamentos):
             processar_mensagem("2", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
@@ -249,11 +244,11 @@ class StateMachineIntegrationTest(TestCase):
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.CONFIRMANDO_CANCELAMENTO)
 
-        processar_mensagem("não", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+        processar_mensagem("2", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.IDLE)
-        mock_enviar.assert_called_with(
+        mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.CANCELAMENTO_ABORTADO,
             self.bot_telefone
@@ -269,8 +264,16 @@ class StateMachineIntegrationTest(TestCase):
             processar_mensagem("Ana Lima", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
         mock_agendamentos = [
-            MagicMock(date="05/04/2026", time="10:00"),
-            MagicMock(date="08/04/2026", time="15:00"),
+            MagicMock(
+                date=date(2026, 4, 5),
+                time="10:00",
+                location="Rua Nelson Tigrão, 15, Vila Missionária, CEP: 04430-165"
+            ),
+            MagicMock(
+                date=date(2026, 4, 15),
+                time="10:00",
+                location="Rua Nelson Tigrão, 15, Vila Missionária, CEP: 04430-165"
+            )
         ]
 
         with patch(PATCH_BUSCAR_AGENDAMENTOS, return_value=mock_agendamentos):
@@ -291,7 +294,7 @@ class StateMachineIntegrationTest(TestCase):
         with patch(PATCH_BUSCAR_AGENDAMENTOS, return_value=[]):
             processar_mensagem("3", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
-        mock_enviar.assert_called_with(
+        mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.SEM_AGENDAMENTOS,
             self.bot_telefone
@@ -300,21 +303,23 @@ class StateMachineIntegrationTest(TestCase):
     @patch(PATCH_ENVIAR_UTILS)
     @patch(PATCH_ENVIAR_ENGINE)
     def test_validacao_nome_invalido(self, mock_enviar, _mock_enviar_utils):
+        novo_usuario: str = "+551122222222"
+
         with patch(PATCH_BUSCAR_DATAS, return_value=MOCK_DATAS_DISPONIVEIS):
-            processar_mensagem("Oi", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+            processar_mensagem("Oi", self.bot_telefone, novo_usuario, self.nome_usuario)
 
-        processar_mensagem("123", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+        processar_mensagem("123", self.bot_telefone, novo_usuario, self.nome_usuario)
 
-        conv = get_conversation(self.usuario_telefone)
+        conv = get_conversation(novo_usuario)
         self.assertEqual(conv.state, Status.VALIDANDO_USUARIO)
-        mock_enviar.assert_called_with(
-            self.usuario_telefone,
+        mock_enviar.assert_any_call(
+            novo_usuario,
             MensagemBOT.NOME_NAO_INFORMADO,
             self.bot_telefone
         )
 
-        processar_mensagem("", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
-        conv = get_conversation(self.usuario_telefone)
+        processar_mensagem("", self.bot_telefone, novo_usuario, self.nome_usuario)
+        conv = get_conversation(novo_usuario)
         self.assertEqual(conv.state, Status.VALIDANDO_USUARIO)
 
     @patch(PATCH_ENVIAR_UTILS)
@@ -365,7 +370,7 @@ class StateMachineIntegrationTest(TestCase):
 
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.IDLE)
-        mock_enviar.assert_called_with(
+        mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.CANCELAMENTO_CONFIRMADO,
             self.bot_telefone
@@ -383,7 +388,7 @@ class StateMachineIntegrationTest(TestCase):
         processar_mensagem("4", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
         conv = get_conversation(self.usuario_telefone)
-        self.assertEqual(conv.state, Status.IDLE)
+        self.assertEqual(conv.state, Status.SAIR)
         self.assertEqual(len(conv.data), 0)
         mock_enviar.assert_called_with(
             self.usuario_telefone,

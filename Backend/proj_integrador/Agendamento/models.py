@@ -37,7 +37,7 @@ class Appointment(models.Model):
     time = models.TimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     google_event_id = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255)
+    location = models.CharField(max_length=255, default='Rua Nelson Tigrão, 15, Vila Missionária, CEP: 04430-165')
 
     objects = AppointmentsManager()
 

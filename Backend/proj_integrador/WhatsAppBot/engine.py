@@ -63,6 +63,14 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
 
 
 def gerenciar_status_inicial(usuario_telefone: str, bot_telefone: str) -> None:
+    usuario = Customer.objects.buscar_usuario_por_telefone(usuario_telefone)
+
+    if usuario:
+        enviar_mensagem(usuario_telefone, MensagemBOT.bem_vindo_customizado(usuario.name), bot_telefone)
+        enviar_mensagem(usuario_telefone, MensagemBOT.MENU_PRINCIPAL, bot_telefone)
+        set_state(usuario_telefone, Status.AGUARDANDO_OPCAO_MENU)
+        return
+
     enviar_mensagem(usuario_telefone, MensagemBOT.BOAS_VINDAS, bot_telefone)
     set_state(usuario_telefone, Status.VALIDANDO_USUARIO)
 
@@ -71,6 +79,7 @@ def gerenciar_validacao_usuario(usuario_telefone: str, bot_telefone: str, mensag
     mensagem = mensagem_do_usuario.strip()
 
     if not mensagem or mensagem.isdigit() or len(mensagem) < 2:
+        set_state(usuario_telefone, Status.VALIDANDO_USUARIO)
         enviar_mensagem(usuario_telefone, MensagemBOT.NOME_NAO_INFORMADO, bot_telefone)
         return
 
@@ -184,12 +193,10 @@ def gerenciar_local_atendimento(usuario_telefone: str, bot_telefone: str, mensag
     conv = get_conversation(usuario_telefone)
 
     if mensagem == "1":
-        conv.data["local_atendimento"] = LocalAtendimento.A_DOMICILIO
         enviar_mensagem(usuario_telefone, MensagemBOT.INFORMAR_ENDERECO, bot_telefone)
         set_state(usuario_telefone, Status.AGUARDANDO_ENDERECO)
 
     elif mensagem == "2":
-        conv.data["local_atendimento"] = LocalAtendimento.SALAO
         gerenciar_bot_confirmacao_agendamento(usuario_telefone, bot_telefone, endereco_padrao)
 
     else:
@@ -228,7 +235,7 @@ def gerenciar_confirmacao_agendamento(usuario_telefone: str, bot_telefone: str, 
         from datetime import datetime
         data_hora_final = datetime.combine(data_escolhida, horario_padrao)
         customer = Customer.objects.buscar_usuario_por_telefone(usuario_telefone)
-        local = conv.data["local_atendimento"]
+        local = conv.data["agendamento"].local_atendimento
         Appointment.objects.marcar_agendamento(
             customer,
             data_hora_final,
@@ -305,7 +312,7 @@ def reset_conversation(phone: str):
 def gerenciar_bot_confirmacao_agendamento(usuario_telefone: str, bot_telefone: str, endereco_padrao: str):
     conv = get_conversation(usuario_telefone)
 
-    conv.data["endereco"] = endereco_padrao
+    conv.data["agendamento"].local_atendimento = endereco_padrao
     agendamento = conv.data["agendamento"].data_hora
     nome_usuario = conv.data["usuario"].nome
 

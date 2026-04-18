@@ -13,5 +13,6 @@ class AgendamentoDTO:
     usuario_wa_id: str
     data_hora: Optional[dict] = None
     datas_disponiveis: Optional[list] = None
+    local_atendimento: Optional[str] = None
 
 
