@@ -37,6 +37,7 @@ jobs:
         VERIFY_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         PYTHONPATH: ${{ github.workspace }}
       run: |
+        python Backend/proj_integrador/manage.py makemigrations
         python Backend/proj_integrador/manage.py migrate
 
     - name: Run Tests
