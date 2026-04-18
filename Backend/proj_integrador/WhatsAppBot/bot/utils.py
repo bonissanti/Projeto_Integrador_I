@@ -12,7 +12,7 @@ def opcao_cancelar(conv: Conversation, usuario_telefone: str, bot_telefone: str,
     from WhatsAppBot.engine import get_conversation
 
     agendamentos_do_usuario: list[Appointment] = Appointment.objects.buscar_agendamentos_por_numero_telefone(
-        mensagem_do_usuario)
+        usuario_telefone)
 
     if not agendamentos_do_usuario:
         enviar_mensagem(usuario_telefone, MensagemBOT.SEM_AGENDAMENTOS, bot_telefone)
@@ -27,9 +27,10 @@ def opcao_cancelar(conv: Conversation, usuario_telefone: str, bot_telefone: str,
 
 def opcao_consultar(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
     agendamentos_do_usuario: list[Appointment] = Appointment.objects.buscar_agendamentos_por_numero_telefone(
-        mensagem_do_usuario)
+        usuario_telefone)
     enviar_mensagem(usuario_telefone, MensagemBOT.listar_agendamentos(agendamentos_do_usuario), bot_telefone)
     set_state(usuario_telefone, Status.IDLE)
+    enviar_mensagem(usuario_telefone, MensagemBOT.IDLE, bot_telefone)
 
 
 def opcao_agendar(conv: Conversation, usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
@@ -42,8 +43,7 @@ def opcao_agendar(conv: Conversation, usuario_telefone: str, bot_telefone: str, 
 def opcao_sair(conv: Conversation, usuario_telefone: str, bot_telefone: str) -> None:
     conv.data.clear()
     enviar_mensagem(usuario_telefone, MensagemBOT.SAIR, bot_telefone)
-    set_state(usuario_telefone, Status.IDLE)
-
+    set_state(usuario_telefone, Status.SAIR)
 
 def set_state(phone: str, new_state: Status):
     from WhatsAppBot.engine import get_conversation
