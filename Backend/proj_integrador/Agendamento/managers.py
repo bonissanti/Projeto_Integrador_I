@@ -57,10 +57,10 @@ class AppointmentsManager(models.Manager):
         return dias_disponiveis
 
     def buscar_agendamentos_por_numero_telefone(self, numero_telefone: str) -> list['Appointment']:
-        query = self.filter(customer__phone=numero_telefone)
+        query = self.filter(customer__phone=numero_telefone, status='scheduled')
         return list(query)
 
-    def marcar_agendamento(self, customer: 'Customer', date: datetime, time: datetime.time,
+    def marcar_agendamento(self, customer: 'Customer', date: datetime, time: datetime.time, location: str,
                            services: list['Service']) -> 'Appointment':
         from .models import AppointmentxService
 
@@ -68,7 +68,8 @@ class AppointmentsManager(models.Manager):
             customer=customer,
             date=date,
             time=time,
-            status='scheduled'
+            status='scheduled',
+            location=location
         )
 
         for service in services:
@@ -85,5 +86,5 @@ class AppointmentsManager(models.Manager):
         appointment.save(update_fields=['status'])
         return appointment
 
-    def checar_se_data_esta_em_uso(self, agendamento: 'Appointment') -> bool:
-        return self.filter(date=agendamento.date, status='scheduled').exists()
+    def checar_se_data_esta_em_uso(self, data: 'datetime.date') -> bool:
+        return self.filter(date=data, status='scheduled').exists()
