@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Agendamento',
     'WhatsAppBot',
+    'Usuario',
 ]
 
 MIDDLEWARE = [
