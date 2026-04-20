@@ -108,7 +108,11 @@ class AppointmentAdmin(admin.ModelAdmin):
 
     @admin.action(description='Cancelar agendamentos selecionados')
     def cancelar_agendamentos(self, request, queryset):
-        atualizados = queryset.update(status='canceled')
+        atualizados = 0
+        for agendamento in queryset.exclude(status='canceled'):
+            agendamento.status = 'canceled'
+            agendamento.save(update_fields=['status'])
+            atualizados += 1
         self.message_user(request, f'{atualizados} agendamento(s) cancelado(s).')
 
     @admin.action(description='Marcar como concluídos')

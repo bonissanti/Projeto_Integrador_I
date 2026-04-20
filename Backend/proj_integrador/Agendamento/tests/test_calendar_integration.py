@@ -43,3 +43,36 @@ class IntegracaoCalendarTest(TestCase):
         agendamento.save()
 
         mock_google_calendar.assert_not_called()
+
+    @patch('Agendamento.calendar_utils.cancelar_evento_google_calendar')
+    @patch('Agendamento.calendar_utils.criar_evento_google_calendar')
+    def test_cancelar_agendamento_dispara_atualizacao_no_google(self, mock_criar, mock_cancelar):
+        mock_criar.return_value = 'id_google_999'
+
+        agendamento = Appointment(
+            customer=self.cliente,
+            scheduled_at=self._futuro(10),
+            status='scheduled',
+        )
+        agendamento.save()
+        self.assertEqual(agendamento.google_event_id, 'id_google_999')
+        mock_cancelar.assert_not_called()
+
+        agendamento.status = 'canceled'
+        agendamento.save(update_fields=['status'])
+
+        mock_cancelar.assert_called_once_with(agendamento)
+
+    @patch('Agendamento.calendar_utils.cancelar_evento_google_calendar')
+    def test_cancelar_sem_google_event_id_nao_chama_google(self, mock_cancelar):
+        agendamento = Appointment(
+            customer=self.cliente,
+            scheduled_at=self._futuro(11),
+            status='scheduled',
+        )
+        agendamento.save()
+
+        agendamento.status = 'canceled'
+        agendamento.save(update_fields=['status'])
+
+        mock_cancelar.assert_not_called()

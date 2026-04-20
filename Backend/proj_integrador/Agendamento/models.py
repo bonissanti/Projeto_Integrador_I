@@ -52,11 +52,16 @@ class Appointment(models.Model):
     class Meta:
         ordering = ['scheduled_at']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__status_original = self.status
+
     def __str__(self):
         return f"{self.customer.name} - {self.scheduled_at:%d/%m/%Y %H:%M}"
 
     def save(self, *args, **kwargs):
         ja_tem_id_google = bool(self.google_event_id)
+        status_antigo = self.__status_original
 
         super().save(*args, **kwargs)
 
@@ -69,7 +74,11 @@ class Appointment(models.Model):
                 self.google_event_id = id_gerado
                 super().save(update_fields=['google_event_id'])
 
-        #TODO: adicionar metodo para deletar do google calendar quando for 'canceled'
+        elif self.status == 'canceled' and status_antigo != 'canceled' and self.google_event_id:
+            from .calendar_utils import cancelar_evento_google_calendar
+            cancelar_evento_google_calendar(self)
+
+        self.__status_original = self.status
 
 
 class AppointmentxService(models.Model):

@@ -23,7 +23,7 @@ Lista de achados, melhorias priorizadas e próximos passos identificados durante
 - Validações em `Usuario/validacoes.py` são fracas (`"@" in email`) — usar `django.core.validators` + lib `phonenumbers`
 - Acoplamento forte `WhatsAppBot.engine` ↔ models — criar `Agendamento/services.py`
 - Lógica do Google Calendar dentro de `Model.save()` → usar signals ou service layer (evita double-save e race condition)
-- Exclusão no Google quando status vira `'canceled'` está marcada como `TODO` em `models.py:76`
+- ~~Exclusão no Google quando status vira `'canceled'`~~ → resolvido: evento agora é **marcado** como cancelado (prefixo `[CANCELADO]` no título, anotação na descrição com data/hora, cor vermelha). Preserva histórico.
 - Substituir `print()` por `logging` estruturado
 
 ## 🟢 Nice-to-have
@@ -41,5 +41,5 @@ Lista de achados, melhorias priorizadas e próximos passos identificados durante
 4. **Segurança do webhook**: validar `X-Hub-Signature-256` via HMAC + rate-limit por telefone
 5. **Settings por ambiente**: `config/settings/{base,dev,prod}.py`, `DEBUG`/`ALLOWED_HOSTS`/`TIME_ZONE` via env, `assert SECRET_KEY`
 6. **Validação robusta**: refatorar `validacoes.py` usando `EmailValidator` + `phonenumbers`
-7. **Cancelamento**: implementar o `TODO` de deletar evento do Google quando status vira `'canceled'`
+7. ~~**Cancelamento no Google Calendar**~~ → ✅ implementado: ao cancelar, o evento é marcado com prefixo `[CANCELADO]`, anotação de data/hora na descrição e cor vermelha.
 8. **Testes de integração reais**: fluxo `webhook → BD → Calendar` (atuais só mockam)
