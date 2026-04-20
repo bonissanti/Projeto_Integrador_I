@@ -88,7 +88,7 @@ O fluxo do bot é uma máquina de estados implementada em `WhatsAppBot/engine.py
 
 **Webhook**: exposto em `WhatsAppBot/urls.py`. Para desenvolvimento local, use `ngrok` (há um `ngrok.yml` de exemplo) e registre a URL pública no painel do WhatsApp Cloud API.
 
-> ⚠️ **Nota**: o estado das conversas hoje é mantido em memória (`conversations` dict). Reiniciar o servidor descarta as sessões ativas. Persistência em banco está no `PLANO_DE_ACAO.md`.
+> ⚠️ **Nota**: o estado das conversas hoje é mantido em memória (`conversations` dict). Reiniciar o servidor descarta as sessões ativas. Persistência em banco está no `docs/ROADMAP.md`.
 
 ---
 
@@ -101,6 +101,24 @@ Ao salvar um `Appointment` com `status='scheduled'`, o método `save()` chama `A
 3. Persiste o `google_event_id` no `Appointment`.
 
 Se o arquivo de credenciais estiver ausente, a integração é **pulada com um warning** (o agendamento é gravado no banco normalmente).
+
+**Ao cancelar** um agendamento sincronizado, o evento no Google é atualizado (não deletado): ganha o prefixo `[CANCELADO]` no título, uma anotação `❌ Cancelado em DD/MM/YYYY HH:MM` na descrição e cor vermelha. Isso preserva o histórico do calendário.
+
+---
+
+## 🌎 Timezone
+
+O sistema inteiro — banco, admin, bot do WhatsApp e Google Calendar — usa um **único fuso horário**, definido em `config/settings.py`:
+
+```python
+TIME_ZONE = 'America/Sao_Paulo'
+```
+
+- O Google Calendar recebe os eventos com `timeZone = settings.TIME_ZONE` (sem hardcode em `calendar_utils.py`), então mudar o fuso da profissional é uma linha só.
+- Com `USE_TZ = True`, o banco continua armazenando datetimes em UTC (padrão Django), mas toda a interação no admin, no bot e na exibição do calendário acontece no fuso configurado.
+- O horário padrão que o bot sugere (11:00) é interpretado como 11:00 no fuso configurado — não como UTC.
+
+Para trocar de fuso no futuro (ex.: profissional viaja), altere apenas `TIME_ZONE` em `settings.py`. A integração com o Google Calendar segue junto.
 
 ---
 

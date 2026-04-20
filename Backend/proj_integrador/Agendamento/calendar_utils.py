@@ -46,8 +46,8 @@ def criar_evento_google_calendar(agendamento):
     event_data = {
         'summary': f'Trança - {agendamento.customer.name}',
         'description': f'Telefone: {agendamento.customer.phone}\nServiço agendado via Bot.',
-        'start': {'dateTime': inicio.isoformat(), 'timeZone': 'America/Sao_Paulo'},
-        'end': {'dateTime': fim.isoformat(), 'timeZone': 'America/Sao_Paulo'},
+        'start': {'dateTime': inicio.isoformat(), 'timeZone': settings.TIME_ZONE},
+        'end': {'dateTime': fim.isoformat(), 'timeZone': settings.TIME_ZONE},
     }
 
     try:

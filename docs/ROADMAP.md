@@ -14,7 +14,7 @@ Lista de achados, melhorias priorizadas e próximos passos identificados durante
 | 2 | `WhatsAppBot/helper.py:68` | `conversations = {}` em memória global — estado do bot se perde ao reiniciar |
 | 3 | `config/settings.py:29` | `DEBUG = True` hardcoded |
 | 4 | `config/settings.py:31` | URL do ngrok hardcoded em `ALLOWED_HOSTS` |
-| 5 | `config/settings.py:115` | `TIME_ZONE = 'UTC'` mas calendário usa `America/Sao_Paulo` |
+| 5 | ~~`config/settings.py:115`~~ | ~~`TIME_ZONE = 'UTC'` mas calendário usa `America/Sao_Paulo`~~ → ✅ resolvido: `TIME_ZONE='America/Sao_Paulo'` e `calendar_utils.py` lê de `settings.TIME_ZONE` (fonte única). |
 | 6 | `Agendamento/calendar_utils.py` | Credenciais do Google em arquivo local + erros só em `print()` |
 | 7 | `WhatsAppBot/views.py` | Webhook com `@csrf_exempt` sem validar assinatura HMAC |
 
