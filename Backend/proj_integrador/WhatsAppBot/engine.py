@@ -20,7 +20,6 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
             "LocalAtendimento": LocalAtendimento.SALAO
         }
 
-    # TODO: ajustar localidade - esqueci de rodar migration
     match conv.state:
         case Status.INICIAL:
             gerenciar_status_inicial(usuario_telefone, bot_telefone)

@@ -107,7 +107,7 @@ Se o arquivo de credenciais estiver ausente, a integração é **pulada com um w
 ## 🧪 Testes
 
 ```bash
-make test             # Roda a suite completa (19 testes)
+make test             # Roda a suite completa (21 testes)
 make check            # Verifica a configuração do Django
 ```
 
@@ -169,4 +169,4 @@ Projeto_Integrador_I/
 
 ## 🗺️ Próximos passos
 
-Veja [docs/ROADMAP.md](./docs/ROADMAP.md) para a lista priorizada de melhorias — incluindo persistência de estado do bot, validação HMAC do webhook, settings por ambiente e exclusão de evento no Google quando o agendamento é cancelado.
+Veja [docs/ROADMAP.md](./docs/ROADMAP.md) para a lista priorizada de melhorias — incluindo persistência de estado do bot em banco, validação HMAC do webhook do WhatsApp e settings por ambiente (dev/prod).
