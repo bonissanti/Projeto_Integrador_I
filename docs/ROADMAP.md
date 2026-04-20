@@ -1,6 +1,6 @@
-# Plano de Ação — Projeto Integrador I
+# Roadmap — Projeto Integrador I
 
-Revisão realizada em 2026-04-20 sobre o backend Django em `Backend/proj_integrador/`.
+Lista de achados, melhorias priorizadas e próximos passos identificados durante a revisão do backend em `Backend/proj_integrador/` (2026-04-20).
 
 ## 🔴 Bug crítico confirmado
 

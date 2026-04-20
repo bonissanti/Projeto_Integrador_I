@@ -131,7 +131,8 @@ Projeto_Integrador_I/
 ├── Taskfile.yml                   # Alternativa ao Make (Task runner)
 ├── docker-compose.yml             # Execução em container
 ├── requirements.txt               # Dependências Python
-├── PLANO_DE_ACAO.md               # Roadmap de melhorias e dívidas técnicas
+├── docs/
+│   └── ROADMAP.md                 # Melhorias priorizadas e dívidas técnicas
 └── ngrok.yml                      # Config de túnel para dev do webhook
 ```
 
@@ -158,13 +159,14 @@ Projeto_Integrador_I/
 
 ## 💡 Dicas
 
-- **Erro "SECRET_KEY must not be empty"**: crie o `.env` na raiz do projeto (passo 2).
-- **Integração Google falhando**: verifique se `calendar_credentials.json` está em `Backend/proj_integrador/` e se o email do calendário em `calendar_utils.py` (`CALENDAR_ID`) tem a service account compartilhada.
-- **Testes não encontram nada**: rode via `make test` (ele entra no diretório correto); rodar `python manage.py test` manualmente exige estar dentro de `Backend/proj_integrador/`.
+- **Erro "SECRET_KEY must not be empty"**: rode `make init-env` para gerar um `.env` com chave válida.
+- **Integração Google falhando silenciosamente**: confirme que `calendar_credentials.json` está em `Backend/proj_integrador/` e que a service account tem acesso ao calendário definido em `calendar_utils.CALENDAR_ID`. Sem o arquivo, a sincronização é apenas ignorada (o agendamento é salvo normalmente).
+- **Testes falhando com `ImproperlyConfigured: SECRET_KEY`**: o `.env` não foi criado. Rode `make init-env` antes de `make test`.
+- **Webhook do WhatsApp não recebe mensagens em dev**: o ngrok precisa estar rodando e a URL pública registrada no painel do WhatsApp Cloud API.
 - **Para limpar tudo e recomeçar**: `make clean && make setup`.
 
 ---
 
 ## 🗺️ Próximos passos
 
-Veja o [PLANO_DE_ACAO.md](./PLANO_DE_ACAO.md) para a lista priorizada de melhorias — incluindo persistência de estado do bot, validação HMAC do webhook, settings por ambiente e exclusão de evento no Google quando agendamento é cancelado.
+Veja [docs/ROADMAP.md](./docs/ROADMAP.md) para a lista priorizada de melhorias — incluindo persistência de estado do bot, validação HMAC do webhook, settings por ambiente e exclusão de evento no Google quando o agendamento é cancelado.
