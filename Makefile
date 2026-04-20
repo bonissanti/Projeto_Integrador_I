@@ -16,7 +16,7 @@ RM := rm -rf
 PYTHON_BIN := $(shell command -v python3 || command -v python)
 endif
 
-.PHONY: help setup install venv activate migrate makemigrations runserver createsuperuser test check update-requirements clean
+.PHONY: help setup install venv activate migrate makemigrations runserver createsuperuser test check init-env update-requirements clean
 
 help:
 	@echo ""
@@ -30,6 +30,7 @@ help:
 	@echo ""
 	@echo "ATIVAR AMBIENTE:"
 	@echo "  make activate           Mostra o comando para ativar o Python isolado"
+	@echo "  make init-env           Cria .env com SECRET_KEY gerado (nao sobrescreve existente)"
 	@echo ""
 	@echo "EXECUTAR PROJETO:"
 	@echo "  make migrate            Prepara o banco de dados"
@@ -56,7 +57,17 @@ install: venv
 	@echo "Instalando dependencias com uv..."
 	@$(UV_CMD) pip install -r requirements.txt || echo "AVISO: requirements.txt nao encontrado ou vazio, pulando instalacao"
 
-setup: install
+init-env:
+	@if [ -f .env ]; then \
+		echo "Arquivo .env ja existe. Para recriar, remova primeiro: rm .env"; \
+	else \
+		echo "Gerando SECRET_KEY e criando .env..."; \
+		SECRET=$$($(PYTHON_BIN) -c "import secrets; print(secrets.token_urlsafe(64))"); \
+		printf "SECRET_KEY=%s\nVERIFY_TOKEN=altere-aqui-o-token-do-whatsapp\n" "$$SECRET" > .env; \
+		echo "Arquivo .env criado. Ajuste VERIFY_TOKEN com o token do WhatsApp Cloud API."; \
+	fi
+
+setup: install init-env
 	@echo ""
 	@echo "Configuracao concluida!"
 	@echo ""

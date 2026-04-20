@@ -40,15 +40,18 @@ make setup            # Cria .venv, instala uv e dependências
 
 ### 2. Configure o `.env`
 
-Crie um arquivo `.env` na raiz do projeto com:
+O `make setup` já cria o `.env` automaticamente com um `SECRET_KEY` gerado. Se quiser criar/recriar manualmente (ex.: depois de um `make clean`):
 
-```dotenv
-SECRET_KEY=gere-uma-chave-longa-e-aleatoria
-VERIFY_TOKEN=seu-token-do-whatsapp-webhook
+```bash
+make init-env         # Cria .env com SECRET_KEY forte (não sobrescreve)
 ```
 
-> **Dica**: para gerar uma `SECRET_KEY` forte, rode:
-> `python3 -c "import secrets; print(secrets.token_urlsafe(64))"`
+Depois, edite o `.env` e ajuste o `VERIFY_TOKEN` com o token do seu WhatsApp Cloud API:
+
+```dotenv
+SECRET_KEY=<gerado-automaticamente>
+VERIFY_TOKEN=seu-token-do-whatsapp-webhook
+```
 
 ### 3. Ative o ambiente e prepare o banco
 
@@ -138,7 +141,8 @@ Projeto_Integrador_I/
 
 | Comando | Descrição |
 |---|---|
-| `make setup` | Cria `.venv` e instala tudo |
+| `make setup` | Cria `.venv`, instala dependências e gera o `.env` |
+| `make init-env` | Cria `.env` com `SECRET_KEY` gerado (não sobrescreve) |
 | `make activate` | Abre um shell com o venv ativado |
 | `make migrate` | Aplica migrações no banco |
 | `make makemigrations` | Gera novas migrações a partir das mudanças nos models |
