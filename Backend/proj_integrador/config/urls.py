@@ -21,7 +21,10 @@ from config import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('agendar/', views.agendar, name='agendar'),
     path('admin/', admin.site.urls),
     path('', include('WhatsAppBot.urls')),
     path('', include('Usuario.urls')),
+    path('', include('servicos.urls')),
+    path('', include('Agendamento.urls')),
 ]
