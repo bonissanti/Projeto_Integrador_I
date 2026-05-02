@@ -165,7 +165,7 @@ body::before {
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  padding: 6px
+  padding: 6px;
   border-radius: 2px;
   margin-bottom: 14px;
   animation: fadeUp 0.8s ease both;
@@ -478,6 +478,11 @@ body::before {
   padding: 0;
 }
 
+.step-dot[data-step="3"],
+.step-dot[data-step="4"] {
+  padding-top: 12px;  /* nudge down visually, or use negative margin */
+}
+
 .step:hover .step-dot {
   background: var(--caramelo);
   transform: scale(1.1);
@@ -493,10 +498,12 @@ body::before {
 }
 
 .step-desc {
-  font-size: 13px;
-  color: rgba(251,245,236,0.5);
-  line-height: 1.7;
+  font-size: 12px;
+  color: rgba(251, 245, 236, 0.5);
+  line-height: 1.5;
   font-weight: 300;
+  text-align: center;
+  margin: 0 auto;
 }
 
 /* ── DEPOIMENTOS ── */
@@ -653,7 +660,7 @@ footer {
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
-  transition: all opacity 0.7s ease, transform 0.7s ease-in-out;
+  transition: opacity 0.7s ease, transform 0.7s ease-in-out;
 }
 
 /* ── RESPONSIVE ── */
