@@ -192,11 +192,6 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do
     set_state(usuario_telefone, Status.AGUARDANDO_ESCOLHA_SERVICO)
 
 
-# def gerenciar_solicitacao_para_servico(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
-#
-#     set_state(usuario_telefone, Status.AGUARDANDO_ESCOLHA_SERVICO)
-#
-
 def gerenciar_escolha_servico(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
     if not mensagem_do_usuario.isdigit():
         enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
@@ -337,9 +332,7 @@ def gerenciar_confirmar_cancelamento(usuario_telefone: str, bot_telefone: str, m
         enviar_mensagem(usuario_telefone,MensagemBOT.OPCAO_INVALIDA, bot_telefone)
 
 def reset_conversation(phone: str):
-    conv = get_conversation(phone)
-    conv.data.clear()
-    conv.state = Status.IDLE
+    conversations.pop(phone, None)
 
 
 def gerenciar_bot_confirmacao_agendamento(usuario_telefone: str, bot_telefone: str, endereco_padrao: str):
