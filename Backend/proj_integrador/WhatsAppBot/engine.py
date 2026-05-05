@@ -5,6 +5,7 @@ from .bot.utils import opcao_cancelar, opcao_consultar, opcao_agendar, opcao_sai
 from .helper import MensagemBOT, Conversation, conversations
 from .bot_enums import Status, LocalAtendimento
 from .send_message import enviar_mensagem
+import secrets
 
 def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_telefone: str, nome_usuario: str):
     conv = get_conversation(usuario_telefone)
@@ -131,7 +132,8 @@ def gerenciar_solicitacao_para_email(usuario_telefone: str, bot_telefone: str, m
 
     conv = get_conversation(usuario_telefone)
     conv.data["usuario"].email = mensagem_do_usuario
-    Customer.objects.cadastrar_usuario(conv.data["usuario"].nome, conv.data["usuario"].email, conv.data["usuario"].wa_id)
+    senha = secrets.token_urlsafe(12)
+    Customer.objects.cadastrar_usuario(conv.data["usuario"].nome, conv.data["usuario"].email, conv.data["usuario"].wa_id, senha)
     enviar_mensagem(usuario_telefone, MensagemBOT.MENU_PRINCIPAL, bot_telefone)
     set_state(usuario_telefone, Status.AGUARDANDO_OPCAO_MENU)
 
