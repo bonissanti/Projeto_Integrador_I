@@ -128,3 +128,12 @@ class ServiceManager(models.Manager):
 
     def listar_servicos(self) -> list['Service']:
         return list(self.values_list('name', 'price'))
+
+    def listar_servicos_por_nome(self) -> list['Service']:
+        return list(self.values_list('name', flat=True))
+
+    def buscar_numero_de_servicos_oferecidos(self) -> int:
+        return self.count()
+
+    def buscar_servico_por_id(self, id: int) -> 'Service | None':
+        return self.filter(id=id).first()

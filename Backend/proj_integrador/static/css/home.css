@@ -68,6 +68,15 @@ body::before {
   overflow: hidden;
 }
 
+.hero-right-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
 /* Decorative braiding pattern */
 .hero-right::before {
   content: '';
