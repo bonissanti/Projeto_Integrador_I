@@ -1,5 +1,5 @@
 from datetime import datetime, time
-from Agendamento.models import Appointment, Customer
+from Agendamento.models import Appointment, Customer, Service
 from .bot.dtos import UsuarioContextoDTO, AgendamentoDTO
 from .bot.utils import opcao_cancelar, opcao_consultar, opcao_agendar, opcao_sair, checar_email, set_state
 from .helper import MensagemBOT, Conversation, conversations
@@ -17,7 +17,8 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
         conv.data = {
             "usuario": UsuarioContextoDTO(wa_id=usuario_telefone, nome=nome_usuario),
             "agendamento": AgendamentoDTO(usuario_wa_id=usuario_telefone, datas_disponiveis=agendamentos),
-            "LocalAtendimento": LocalAtendimento.SALAO
+            "LocalAtendimento": LocalAtendimento.SALAO,
+            "servico": None,
         }
 
     match conv.state:
@@ -38,6 +39,12 @@ def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_tele
 
         case Status.DEFININDO_DATA:
             gerenciar_escolha_data(usuario_telefone, bot_telefone, mensagem_do_usuario)
+
+        # case Status.SOLICITACAO_PARA_SERVICO:
+        #     gerenciar_solicitacao_para_servico(usuario_telefone, bot_telefone, mensagem_do_usuario)
+
+        case Status.AGUARDANDO_ESCOLHA_SERVICO:
+            gerenciar_escolha_servico(usuario_telefone, bot_telefone, mensagem_do_usuario)
 
         case Status.LOCAL_ATENDIMENTO:
             gerenciar_local_atendimento(usuario_telefone, bot_telefone, mensagem_do_usuario, endereco_padrao)
@@ -178,6 +185,31 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do
     conv = get_conversation(usuario_telefone)
     conv.data["agendamento"].data_hora = agendamento_escolhido
 
+    servicos = Service.objects.listar_servicos_por_nome()
+    enviar_mensagem(usuario_telefone, MensagemBOT.selecionar_servico(servicos), bot_telefone)
+    set_state(usuario_telefone, Status.AGUARDANDO_ESCOLHA_SERVICO)
+
+
+# def gerenciar_solicitacao_para_servico(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
+#
+#     set_state(usuario_telefone, Status.AGUARDANDO_ESCOLHA_SERVICO)
+#
+
+def gerenciar_escolha_servico(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
+    if not mensagem_do_usuario.isdigit():
+        enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
+        return
+
+    indice = int(mensagem_do_usuario)
+    numero_servicos_oferecidos = Service.objects.buscar_numero_de_servicos_oferecidos()
+
+    if indice < 1 or indice > numero_servicos_oferecidos:
+        enviar_mensagem(usuario_telefone, MensagemBOT.OPCAO_INVALIDA, bot_telefone)
+        return
+
+    servico_escolhido = Service.objects.buscar_servico_por_id(indice)
+    conv = get_conversation(usuario_telefone)
+    conv.data["servico"] = servico_escolhido
     enviar_mensagem(usuario_telefone, MensagemBOT.LOCAL_ATENDIMENTO, bot_telefone)
     set_state(usuario_telefone, Status.LOCAL_ATENDIMENTO)
 
@@ -235,11 +267,12 @@ def gerenciar_confirmacao_agendamento(usuario_telefone: str, bot_telefone: str, 
         scheduled_at = datetime.combine(data_escolhida, horario_padrao)
         customer = Customer.objects.buscar_usuario_por_telefone(usuario_telefone)
         local = conv.data["agendamento"].local_atendimento
+        servico = conv.data["servico"]
         Appointment.objects.marcar_agendamento(
             customer,
             scheduled_at,
             local,
-            [],
+            [servico],
         )
 
         set_state(usuario_telefone, Status.IDLE)
@@ -313,8 +346,9 @@ def gerenciar_bot_confirmacao_agendamento(usuario_telefone: str, bot_telefone: s
     conv.data["agendamento"].local_atendimento = endereco_padrao
     agendamento = conv.data["agendamento"].data_hora
     nome_usuario = conv.data["usuario"].nome
+    servico: Service = conv.data["servico"]
 
-    msg = MensagemBOT.confirmar_agendamento(nome_usuario, agendamento, endereco_padrao)
+    msg = MensagemBOT.confirmar_agendamento(nome_usuario, agendamento, endereco_padrao, servico.name)
     enviar_mensagem(usuario_telefone, msg, bot_telefone)
     set_state(usuario_telefone, Status.CONFIRMANDO_AGENDAMENTO)
 

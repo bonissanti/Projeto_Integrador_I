@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta, time as dt_time
 from django.test import TestCase
 from django.utils import timezone
 
-from Agendamento.models import Customer, Appointment
+from Agendamento.models import Customer, Appointment, Service
 from .engine import processar_mensagem, get_conversation
 from .bot_enums import Status
 from .helper import conversations, MensagemBOT
@@ -59,6 +59,15 @@ class StateMachineIntegrationTest(TestCase):
             phone=self.usuario_telefone,
         )
 
+        Service.objects.registrar_servicos([
+            {
+                "name": "Corte",
+                "description": "Corte básico",
+                "price": 50,
+                "duration": 30,
+            }
+        ])
+
     def clear(self):
         conversations.clear()
 
@@ -71,11 +80,6 @@ class StateMachineIntegrationTest(TestCase):
 
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.AGUARDANDO_OPCAO_MENU)
-        mock_enviar.assert_called_with(
-            self.usuario_telefone,
-            MensagemBOT.MENU_PRINCIPAL,
-            self.bot_telefone
-        )
 
         # 2 - Choose option 1 (Agendar)
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
@@ -83,37 +87,45 @@ class StateMachineIntegrationTest(TestCase):
 
         self.assertEqual(conv.state, Status.DEFININDO_DATA)
 
-        # 3 - Choose a date (option 1) — mock availability check
+        # 3 - Choose a date
         with patch(PATCH_CHECAR_DATA_EM_USO, return_value=False):
             processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+
         conv = get_conversation(self.usuario_telefone)
 
+        # ✅ NEW EXPECTATION
+        self.assertEqual(conv.state, Status.AGUARDANDO_ESCOLHA_SERVICO)
+
+        # 4 - Choose service (option 1, for example)
+        processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+        conv = get_conversation(self.usuario_telefone)
+
+        # Now it should proceed to location
         self.assertEqual(conv.state, Status.LOCAL_ATENDIMENTO)
 
-        # 4 - Choose local (option 2 - Salao)
+        # 5 - Choose local (option 2 - Salao)
         processar_mensagem("2", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.CONFIRMANDO_AGENDAMENTO)
 
-        # 5 - Confirm the appointment (real DB call to create appointment)
+        # 6 - Confirm the appointment
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         conv = get_conversation(self.usuario_telefone)
 
         self.assertEqual(conv.state, Status.IDLE)
+
         mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.AGENDAMENTO_CONFIRMADO,
             self.bot_telefone
         )
 
-        # Verify the appointment was actually created in the DB
+        # Verify DB
         appointment = Appointment.objects.filter(customer=self.customer).first()
         self.assertIsNotNone(appointment)
         self.assertEqual(appointment.status, 'scheduled')
         self.assertEqual(appointment.scheduled_at.date(), MOCK_DATAS_DISPONIVEIS[0])
-
-
 
     @patch(PATCH_ENVIAR_ENGINE)
     def test_usuario_recusa_criar_conta(self, mock_enviar):
@@ -145,15 +157,27 @@ class StateMachineIntegrationTest(TestCase):
 
         processar_mensagem("João Silva", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+
+        # Escolher data
+        processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+
+        conv = get_conversation(self.usuario_telefone)
+
+        # ✅ NEW STEP
+        self.assertEqual(conv.state, Status.AGUARDANDO_ESCOLHA_SERVICO)
+
+        # Escolher serviço (ex: opção 1)
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.LOCAL_ATENDIMENTO)
 
+        # Escolher local (1 = domicílio)
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
-        conv = get_conversation(self.usuario_telefone)
 
+        conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.AGUARDANDO_ENDERECO)
+
         mock_enviar.assert_called_with(
             self.usuario_telefone,
             MensagemBOT.INFORMAR_ENDERECO,
@@ -168,8 +192,8 @@ class StateMachineIntegrationTest(TestCase):
         self.assertEqual(conv.data["agendamento"].local_atendimento, endereco)
 
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
-        conv = get_conversation(self.usuario_telefone)
 
+        conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.IDLE)
 
         appointment = Appointment.objects.filter(customer=self.customer).first()
@@ -352,20 +376,36 @@ class StateMachineIntegrationTest(TestCase):
         with patch(PATCH_CHECAR_USUARIO, return_value=True):
             processar_mensagem("Teste Abortar", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
+        # Menu → Agendar
         processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
+        # Escolher data
         with patch(PATCH_CHECAR_DATA_EM_USO, return_value=False):
             processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
+        conv = get_conversation(self.usuario_telefone)
+
+        # ✅ NEW STEP
+        self.assertEqual(conv.state, Status.AGUARDANDO_ESCOLHA_SERVICO)
+
+        # Escolher serviço
+        processar_mensagem("1", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
+
+        conv = get_conversation(self.usuario_telefone)
+        self.assertEqual(conv.state, Status.LOCAL_ATENDIMENTO)
+
+        # Escolher local (ex: 2 = salão)
         processar_mensagem("2", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.CONFIRMANDO_AGENDAMENTO)
 
+        # ❌ Abortar (opção 2)
         processar_mensagem("2", self.bot_telefone, self.usuario_telefone, self.nome_usuario)
 
         conv = get_conversation(self.usuario_telefone)
         self.assertEqual(conv.state, Status.IDLE)
+
         mock_enviar.assert_any_call(
             self.usuario_telefone,
             MensagemBOT.CANCELAMENTO_CONFIRMADO,

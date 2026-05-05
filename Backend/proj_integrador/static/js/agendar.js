@@ -268,7 +268,7 @@ async function confirmarAgendamento() {
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
-        const scheduledAt = `${year}-${month}-${day}T11:00:00`;
+        const scheduledAt = `${year}-${month}-${day}T14:00:00`;
 
         const userRes = await fetch(`${API_BASE}/usuario/?numero_telefone=${state.usuario.telefone}`);
         if (!userRes.ok) throw new Error('Usuário não encontrado');

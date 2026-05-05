@@ -1,6 +1,8 @@
 from enum import Enum
 
 class Status(str, Enum):
+    AGUARDANDO_ESCOLHA_SERVICO = "aguardando_servico"
+    SOLICITACAO_PARA_SERVICO = "solicitacao_servico"
     SAIR = "Sair"
     INICIAL = "inicial"
     IDLE = "idle"

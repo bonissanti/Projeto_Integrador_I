@@ -14,7 +14,7 @@ class MensagemBOT:
     OPCAO_INVALIDA = "Opção inválida. Por favor, escolha uma das opções disponíveis."
     EMAIL_INVALIDO = "Opa, parece que o email informado não é válido, revise e tente novamente!"
     NOME_NAO_INFORMADO = "Opa! Esse nome me parece incorreto, por favor, informe seu nome novamente."
-    LOCAL_ATENDIMENTO = "Em qual local deseja ser atendido(a)?\nDigite um dos valores abaixo:\n\n1 - Em sua residência (adicional de R$XXX ao valor final)\n2 - Em meu salão"
+    LOCAL_ATENDIMENTO = "Em qual local deseja ser atendido(a)?\nDigite um dos valores abaixo:\n\n1 - Em sua residência (Taxa adicional)\n2 - Em meu salão"
     AGENDAMENTO_CONFIRMADO = "Agendamento confirmado! ✅\n"
     CANCELAMENTO_CONFIRMADO = "Agendamento cancelado! ❌"
     CANCELAMENTO_ABORTADO = "Cancelamento abortado! ✅"
@@ -25,15 +25,15 @@ class MensagemBOT:
     @staticmethod
     def informarDatasDisponiveis(datas: list) -> str:
         lista = "\n".join(
-            f"{i + 1} - {d.strftime('%d/%m/%Y')} às 11:00"
+            f"{i + 1} - {d.strftime('%d/%m/%Y')} às 14:00"
             for i, d in enumerate(datas)
         )
         return f"Estas são minhas datas disponíveis nos próximos 20 dias:\n{lista}\n\nEscolha uma opção:"
 
     @staticmethod
-    def confirmar_agendamento(nome: str, agendamento: list, endereco: str) -> str:
+    def confirmar_agendamento(nome: str, agendamento: list, endereco: str, nome_servico: str) -> str:
         data_formatada = agendamento.strftime('%d/%m/%Y')
-        return f"Ok, {nome}, posso confirmar o agendamento para:\n\n📅 {data_formatada}\n🏠 Local: {endereco}\n\n1 - Sim\n2 - Não"
+        return f"Ok, {nome}, posso confirmar o agendamento para:\n\n📅 {data_formatada}\n✨ Serviço: {nome_servico}\n🏠 Local: {endereco}\n\n1 - Sim\n2 - Não"
 
     @staticmethod
     def listar_agendamentos(agendamentos: list[Appointment]) -> str:
@@ -68,6 +68,11 @@ class MensagemBOT:
 
     def bem_vindo_customizado(nome: str) -> str:
         return f"Olá, bem-vindo(a) de volta, {nome}! 🫶"
+
+    @staticmethod
+    def selecionar_servico(servicos: list[str]) -> str:
+        lista = "\n".join(f"{i + 1} - {name}" for i, name in enumerate(servicos))
+        return f"Selecione o número do seu serviço desejado:\n{lista}"
 
 @dataclass
 class Conversation:
