@@ -140,4 +140,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',  # Project-wide static files
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 WHATSAPP_VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
