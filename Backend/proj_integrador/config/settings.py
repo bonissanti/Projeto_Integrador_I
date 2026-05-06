@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hereditable-unsatcheled-earnestine.n
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.localto.net',
+    'https://projeto-integrador-i-lkz4.onrender.com'
 ]
 
 API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:8080')

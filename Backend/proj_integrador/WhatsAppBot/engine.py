@@ -331,6 +331,7 @@ def gerenciar_confirmar_cancelamento(usuario_telefone: str, bot_telefone: str, m
     else:
         enviar_mensagem(usuario_telefone,MensagemBOT.OPCAO_INVALIDA, bot_telefone)
 
+
 def reset_conversation(phone: str):
     conversations.pop(phone, None)
 
