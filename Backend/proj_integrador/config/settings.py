@@ -29,10 +29,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hereditable-unsatcheled-earnestine.ngrok-free.dev']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hereditable-unsatcheled-earnestine.ngrok-free.dev', 'projeto-integrador-i-lkz4.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.localto.net',
+    'https://projeto-integrador-i-lkz4.onrender.com'
 ]
 
 API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:8080')
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [ # for dev
@@ -139,5 +141,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',  # Project-wide static files
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 WHATSAPP_VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")

@@ -5,6 +5,7 @@ from .bot.utils import opcao_cancelar, opcao_consultar, opcao_agendar, opcao_sai
 from .helper import MensagemBOT, Conversation, conversations
 from .bot_enums import Status, LocalAtendimento
 from .send_message import enviar_mensagem
+import secrets
 
 def processar_mensagem(mensagem_do_usuario: str, bot_telefone: str, usuario_telefone: str, nome_usuario: str):
     conv = get_conversation(usuario_telefone)
@@ -131,7 +132,8 @@ def gerenciar_solicitacao_para_email(usuario_telefone: str, bot_telefone: str, m
 
     conv = get_conversation(usuario_telefone)
     conv.data["usuario"].email = mensagem_do_usuario
-    Customer.objects.cadastrar_usuario(conv.data["usuario"].nome, conv.data["usuario"].email, conv.data["usuario"].wa_id)
+    senha = secrets.token_urlsafe(12)
+    Customer.objects.cadastrar_usuario(conv.data["usuario"].nome, conv.data["usuario"].email, conv.data["usuario"].wa_id, senha)
     enviar_mensagem(usuario_telefone, MensagemBOT.MENU_PRINCIPAL, bot_telefone)
     set_state(usuario_telefone, Status.AGUARDANDO_OPCAO_MENU)
 
@@ -189,11 +191,6 @@ def gerenciar_escolha_data(usuario_telefone: str, bot_telefone: str, mensagem_do
     enviar_mensagem(usuario_telefone, MensagemBOT.selecionar_servico(servicos), bot_telefone)
     set_state(usuario_telefone, Status.AGUARDANDO_ESCOLHA_SERVICO)
 
-
-# def gerenciar_solicitacao_para_servico(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
-#
-#     set_state(usuario_telefone, Status.AGUARDANDO_ESCOLHA_SERVICO)
-#
 
 def gerenciar_escolha_servico(usuario_telefone: str, bot_telefone: str, mensagem_do_usuario: str) -> None:
     if not mensagem_do_usuario.isdigit():
@@ -334,10 +331,9 @@ def gerenciar_confirmar_cancelamento(usuario_telefone: str, bot_telefone: str, m
     else:
         enviar_mensagem(usuario_telefone,MensagemBOT.OPCAO_INVALIDA, bot_telefone)
 
+
 def reset_conversation(phone: str):
-    conv = get_conversation(phone)
-    conv.data.clear()
-    conv.state = Status.IDLE
+    conversations.pop(phone, None)
 
 
 def gerenciar_bot_confirmacao_agendamento(usuario_telefone: str, bot_telefone: str, endereco_padrao: str):
